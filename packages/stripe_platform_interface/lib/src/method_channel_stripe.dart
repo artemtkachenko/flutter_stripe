@@ -12,17 +12,15 @@ import 'models/setup_intent.dart';
 import 'models/three_d_secure.dart';
 import 'stripe_platform_interface.dart';
 
-const _appInfo = AppInfo(
-    name: 'flutter_stripe',
-    version: '0.0.0',
-    url: 'https://github.com/fluttercommunity/flutter_stripe/');
+const _appInfo =
+    AppInfo(name: 'flutter_stripe', version: '0.0.0', url: 'https://github.com/fluttercommunity/flutter_stripe/');
 
 /// An implementation of [StripePlatform] that uses method channels.
 class MethodChannelStripe extends StripePlatform {
   MethodChannelStripe({
     required MethodChannel methodChannel,
     required bool platformIsIos,
-  })  : _methodChannel = methodChannel,
+  })   : _methodChannel = methodChannel,
         _platformIsIos = platformIsIos;
 
   final MethodChannel _methodChannel;
@@ -50,8 +48,7 @@ class MethodChannelStripe extends StripePlatform {
     PaymentMethodParams data, [
     Map<String, String> options = const {},
   ]) async {
-    final result = await _methodChannel
-        .invokeMapMethod<String, dynamic>('createPaymentMethod', {
+    final result = await _methodChannel.invokeMapMethod<String, dynamic>('createPaymentMethod', {
       'data': data.toJson(),
       'options': options,
     });
@@ -74,13 +71,17 @@ class MethodChannelStripe extends StripePlatform {
     Map<String, String> options = const {},
   ]) async {
     try {
-      final result = await _methodChannel
-          .invokeMapMethod<String, dynamic>('confirmPaymentMethod', {
+      final result = await _methodChannel.invokeMapMethod<String, dynamic>('confirmPaymentMethod', {
         'paymentIntentClientSecret': paymentIntentClientSecret,
         'params': params.toJson(),
         'options': options,
       });
       return PaymentIntent.fromJson(result.unfoldToNonNull());
+    } on PlatformException catch (exception) {
+      throw StripeError<PaymentIntentError>(
+        code: PaymentIntentError.unknown,
+        message: exception.message ?? 'Confirming payment intent failed',
+      );
     } on Exception catch (_) {
       throw const StripeError<PaymentIntentError>(
         code: PaymentIntentError.unknown,
@@ -95,8 +96,7 @@ class MethodChannelStripe extends StripePlatform {
     PaymentMethodParams data, [
     Map<String, String> options = const {},
   ]) async {
-    final result = await _methodChannel
-        .invokeMapMethod<String, dynamic>('confirmSetupIntent', {
+    final result = await _methodChannel.invokeMapMethod<String, dynamic>('confirmSetupIntent', {
       'setupIntentClientSecret': setupIntentClientSecret,
       'params': data.toJson(),
       'options': options,
@@ -116,11 +116,9 @@ class MethodChannelStripe extends StripePlatform {
   }
 
   @override
-  Future<PaymentIntent> handleCardAction(
-      String paymentIntentClientSecret) async {
+  Future<PaymentIntent> handleCardAction(String paymentIntentClientSecret) async {
     try {
-      final result = await _methodChannel
-          .invokeMapMethod<String, dynamic>('handleCardAction', {
+      final result = await _methodChannel.invokeMapMethod<String, dynamic>('handleCardAction', {
         'paymentIntentClientSecret': paymentIntentClientSecret,
       });
 
@@ -138,8 +136,7 @@ class MethodChannelStripe extends StripePlatform {
     if (!_platformIsIos) {
       return false;
     }
-    final isSupported =
-        await _methodChannel.invokeMethod('isApplePaySupported');
+    final isSupported = await _methodChannel.invokeMethod('isApplePaySupported');
     return isSupported ?? false;
   }
 
@@ -154,8 +151,7 @@ class MethodChannelStripe extends StripePlatform {
   @override
   Future<PaymentIntent> retrievePaymentIntent(String clientSecret) async {
     try {
-      final result = await _methodChannel
-          .invokeMapMethod<String, dynamic>('retrievePaymentIntent', {
+      final result = await _methodChannel.invokeMapMethod<String, dynamic>('retrievePaymentIntent', {
         'clientSecret': clientSecret,
       });
 
