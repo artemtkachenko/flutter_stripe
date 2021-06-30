@@ -41,7 +41,13 @@ class StripeSdkCardPlatformView(
         if (creationParams?.containsKey("postalCodeEnabled") == true) {
             stripeSdkCardViewManager.setPostalCodeEnabled(cardView, creationParams["postalCodeEnabled"] as Boolean)
         }
-        applyFocusFix()
+
+        val binding = CardInputWidgetBinding.bind(cardView.mCardWidget)
+        binding.cardNumberEditText.inputType = InputType.TYPE_CLASS_TEXT
+        binding.cvcEditText.inputType = InputType.TYPE_CLASS_TEXT
+        binding.expiryDateEditText.inputType = InputType.TYPE_CLASS_TEXT
+        
+//        applyFocusFix()
     }
 
     /**
