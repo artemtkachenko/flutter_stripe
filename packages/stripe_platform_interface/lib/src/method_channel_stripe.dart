@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -50,6 +51,22 @@ class MethodChannelStripe extends StripePlatform {
   ]) async {
     final result = await _methodChannel.invokeMapMethod<String, dynamic>('createPaymentMethod', {
       'data': data.toJson(),
+      'options': options,
+    });
+    return PaymentMethod.fromJson(
+      result.unfoldToNonNull(),
+    );
+  }
+
+  @override
+  Future<PaymentMethod> createPaymentMethodWithCardData(
+    PaymentMethodParams data,
+      Map<String, dynamic> cardData,[
+    Map<String, String> options = const {},
+  ]) async {
+    final result = await _methodChannel.invokeMapMethod<String, dynamic>('createPaymentMethodWithCardData', {
+      'data': data.toJson(),
+      'cardData': cardData,
       'options': options,
     });
     return PaymentMethod.fromJson(

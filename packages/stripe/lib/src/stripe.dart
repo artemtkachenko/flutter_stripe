@@ -122,6 +122,27 @@ class Stripe {
     }
   }
 
+  // Anton created
+  Future<PaymentMethod> createPaymentMethodWithCardData(
+      PaymentMethodParams data, {
+        required Map<String, dynamic> cardData,
+        Map<String, String> options = const {},
+      }) async {
+
+
+    await _awaitForSettings();
+    try {
+      final paymentMethod = await _platform.createPaymentMethodWithCardData(
+        data,
+        cardData,
+        options,
+      );
+      return paymentMethod;
+    } on StripeError catch (error) {
+      throw StripeError(message: error.message, code: error.message);
+    }
+  }
+
   /// Retrieves a [PaymentIntent] using the provided [clientSecret].
   ///
   /// Throws an [StripeError] in case retrieving the intent fails.

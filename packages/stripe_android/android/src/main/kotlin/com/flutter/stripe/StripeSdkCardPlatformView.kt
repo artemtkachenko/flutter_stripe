@@ -56,9 +56,9 @@ class StripeSdkCardPlatformView(
             if (shouldApplyFix) {
                 // Temporal fix to https://github.com/flutter/flutter/issues/81029
                 val binding = CardInputWidgetBinding.bind(cardView.mCardWidget)
-                binding.cardNumberEditText.inputType = InputType.TYPE_CLASS_TEXT
-                binding.cvcEditText.inputType = InputType.TYPE_CLASS_TEXT
-                binding.expiryDateEditText.inputType = InputType.TYPE_CLASS_TEXT
+                binding.cardNumberEditText.inputType = InputType.TYPE_CLASS_NUMBER
+                binding.cvcEditText.inputType = InputType.TYPE_CLASS_NUMBER
+                binding.expiryDateEditText.inputType = InputType.TYPE_CLASS_NUMBER
             }
         } catch (e: Exception) {
             Log.e("Stripe Plugin", "Error", e)
@@ -94,12 +94,11 @@ class StripeSdkCardPlatformView(
                 result.success(null)
             }
             "requestFocus" -> {
-                //see details: https://github.com/flutter-stripe/flutter_stripe/commit/cf38b15a51ffebcda6f1b8e7400ad083737eeca6
-//                val binding = CardInputWidgetBinding.bind(cardView.mCardWidget)
-//                binding.cardNumberEditText.requestFocus()
-//                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-//                result.success(null)
+                val binding = CardInputWidgetBinding.bind(cardView.mCardWidget)
+                binding.cardNumberEditText.requestFocus()
+                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                result.success(null)
             }
             "clearFocus" -> {
                 // Hide keyboard
