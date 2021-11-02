@@ -69,6 +69,8 @@ public class StripePlugin: StripeSdk, FlutterPlugin {
             return retrievePaymentIntent(call, result: result)
         case "createPaymentMethod":
             return createPaymentMethod(call, result: result)
+        case "createPaymentMethodWithCardData":
+            return createPaymentMethodWithCardData(call, result: result)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -222,6 +224,23 @@ extension  StripePlugin {
         }
          createPaymentMethod(
             params: params,
+            options: options,
+            resolver: resolver(for: result),
+            rejecter: rejecter(for: result)
+        )
+    }
+    
+    func createPaymentMethodWithCardData(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? FlutterMap,
+        let params = arguments["data"] as? NSDictionary,
+        let cardData = arguments["cardData"] as? NSDictionary,
+        let options = arguments["options"] as? NSDictionary else {
+            result(FlutterError.invalidParams)
+            return
+        }
+        createPaymentMethodWithCardData(
+            params: params,
+            cardData: cardData,
             options: options,
             resolver: resolver(for: result),
             rejecter: rejecter(for: result)

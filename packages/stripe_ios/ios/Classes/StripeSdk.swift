@@ -450,6 +450,41 @@ public class StripeSdk: RCTEventEmitter, STPApplePayContextDelegate, STPBankSele
         }
     }
     
+    @objc(createPaymentMethodWithCardData:cardData:options:resolver:rejecter:)
+    func createPaymentMethodWithCardData(
+        params: NSDictionary,
+        cardData: NSDictionary,
+        options: NSDictionary,
+        resolver resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) -> Void {
+
+        var paymentMethodParams: STPPaymentMethodParams?
+        let factory = PaymentMethodFactory.init(params: params, cardData: cardData)
+        
+        do {
+            paymentMethodParams = try factory.createParamsWithCardData()
+        } catch  {
+            reject(NextPaymentActionErrorType.Failed.rawValue, error.localizedDescription, nil)
+        }
+        
+        guard let params = paymentMethodParams else {
+            reject(NextPaymentActionErrorType.Unknown.rawValue, "Unhandled error occured", nil)
+            return
+        }
+        
+        STPAPIClient.shared.createPaymentMethod(with: params) { paymentMethod, error in
+            if let createError = error {
+                reject(NextPaymentActionErrorType.Failed.rawValue, createError.localizedDescription, nil)
+            }
+            
+            if let paymentMethod = paymentMethod {
+                let method = Mappers.mapFromPaymentMethod(paymentMethod)
+                resolve(method)
+            }
+        }
+    }
+    
     @objc(handleCardAction:resolver:rejecter:)
     func handleCardAction(
         paymentIntentClientSecret: String,

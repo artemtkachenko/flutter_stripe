@@ -471,6 +471,26 @@ class Mappers {
         return urlScheme + "://safepay"
     }
     
+    class func mapToCardParams(_ params: NSDictionary?) -> STPCardParams? {
+        let cardParams = STPCardParams()
+        
+        guard let cardData = params,
+              let cardNumber = cardData["cardNumber"] as? String,
+              let expiryMonth = cardData["expiryMonth"] as? UInt,
+              let expiryYear = cardData["expiryYear"] as? UInt,
+              let cvc = cardData["cvv"] as? String
+        else {
+            return nil
+        }
+        
+        cardParams.number = cardNumber
+        cardParams.expMonth = expiryMonth
+        cardParams.expYear = expiryYear
+        cardParams.cvc = cvc
+        
+        return cardParams
+    }
+    
     class func mapUICustomization(_ params: NSDictionary) -> STPThreeDSUICustomization {
         let uiCustomization = STPThreeDSUICustomization()
         if let labelSettings = params["label"] as? Dictionary<String, Any?> {

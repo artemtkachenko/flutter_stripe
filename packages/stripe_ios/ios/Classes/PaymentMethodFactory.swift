@@ -6,12 +6,15 @@ class PaymentMethodFactory {
     var billingDetailsParams: STPPaymentMethodBillingDetails? = nil
     var params: NSDictionary? = nil
     var cardFieldView: CardFieldView? = nil
+    var cardData: NSDictionary? = nil
     
-    init(params: NSDictionary, cardFieldView: CardFieldView?) {
+    init(params: NSDictionary, cardFieldView: CardFieldView? = nil, cardData: NSDictionary? = nil) {
         self.billingDetailsParams = Mappers.mapToBillingDetails(billingDetails: params["billingDetails"] as? NSDictionary)
         self.params = params
         self.cardFieldView = cardFieldView
+        self.cardData = cardData
     }
+    
     
     func createParams(paymentMethodType: STPPaymentMethodType) throws -> STPPaymentMethodParams? {
         do {
@@ -47,6 +50,14 @@ class PaymentMethodFactory {
             default:
                 throw PaymentMethodError.paymentNotSupported
             }
+        } catch {
+            throw error
+        }
+    }
+    
+    func createParamsWithCardData() throws -> STPPaymentMethodParams? {
+        do {
+            return try createCardPaymentMethodParamsFromCardData()
         } catch {
             throw error
         }
@@ -116,6 +127,17 @@ class PaymentMethodFactory {
             throw PaymentMethodError.cardPaymentMissingParams
         }
         
+        return STPPaymentMethodParams(card: cardParams, billingDetails: billingDetailsParams, metadata: nil)
+    }
+    
+    private func createCardPaymentMethodParamsFromCardData() throws -> STPPaymentMethodParams {
+        guard  let cardSourceParams = Mappers.mapToCardParams(cardData)
+        else {
+            throw PaymentMethodError.cardDataPaymentMissingParams
+        }
+        
+        let cardParams = STPPaymentMethodCardParams.init(cardSourceParams: cardSourceParams)
+
         return STPPaymentMethodParams(card: cardParams, billingDetails: billingDetailsParams, metadata: nil)
     }
     
@@ -256,6 +278,7 @@ class PaymentMethodFactory {
 
 enum PaymentMethodError: Error {
     case cardPaymentMissingParams
+    case cardDataPaymentMissingParams
     case epsPaymentMissingParams
     case idealPaymentMissingParams
     case paymentNotSupported
@@ -273,6 +296,8 @@ extension PaymentMethodError: LocalizedError {
         switch self {
         case .cardPaymentMissingParams:
             return NSLocalizedString("You must provide card details", comment: "Create payment error")
+        case .cardDataPaymentMissingParams:
+            return NSLocalizedString("You must provide card data", comment: "Create payment error")
         case .giropayPaymentMissingParams:
             return NSLocalizedString("You must provide billing details", comment: "Create payment error")
         case .idealPaymentMissingParams:
